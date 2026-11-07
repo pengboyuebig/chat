@@ -2,6 +2,8 @@
 
 一个基于 **Node.js + Express + Socket.IO** 的实时聊天应用，支持多房间、在线成员列表、输入状态提示和历史消息。
 
+> 安装、使用、配置与部署的详细说明请见 [docs/USAGE.md](docs/USAGE.md)。
+
 ## 功能特性
 
 - 实时消息收发（WebSocket，失败时自动降级为轮询）
@@ -33,6 +35,8 @@ npm start
 
 打开 http://localhost:3000 ，输入昵称和房间名即可开始聊天。
 打开多个浏览器标签页（或不同设备）访问同一房间，即可体验实时聊天。
+
+更完整的操作步骤见 [docs/USAGE.md](docs/USAGE.md#4-界面使用说明)。
 
 开发模式（文件改动自动重启）：
 
@@ -68,6 +72,8 @@ chat/
 │   ├── css/style.css      # 样式
 │   └── js/app.js          # 前端逻辑
 ├── test/chat.test.js      # 端到端测试
+├── docs/
+│   └── USAGE.md           # 详细使用指南
 ├── Dockerfile
 └── package.json
 ```
