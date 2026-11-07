@@ -1,0 +1,29 @@
+{
+  "name": "realtime-chat",
+  "version": "1.0.0",
+  "description": "A real-time chat application built with Node.js, Express and Socket.IO",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test --test-force-exit"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "chat",
+    "realtime",
+    "socket.io",
+    "websocket"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.1"
+  }
+}

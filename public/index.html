@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>实时聊天室</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div id="login" class="login-screen">
+      <form id="login-form" class="login-card" autocomplete="off">
+        <h1>实时聊天室</h1>
+        <p class="subtitle">输入昵称和房间名即可开始聊天</p>
+
+        <label for="nickname">昵称</label>
+        <input id="nickname" name="nickname" maxlength="24" placeholder="例如：小明" required />
+
+        <label for="room">房间</label>
+        <input id="room" name="room" maxlength="40" placeholder="例如：general" value="general" required />
+
+        <button type="submit" id="enter-btn">进入聊天室</button>
+        <p id="login-error" class="error" role="alert"></p>
+      </form>
+    </div>
+
+    <div id="app" class="app hidden">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="dot"></span>
+          <div>
+            <strong id="room-name">general</strong>
+            <span class="muted">实时聊天室</span>
+          </div>
+        </div>
+
+        <div class="section-title">在线成员 <span id="user-count" class="badge">0</span></div>
+        <ul id="user-list" class="user-list"></ul>
+
+        <button id="leave-btn" class="leave-btn" type="button">退出房间</button>
+      </aside>
+
+      <main class="chat">
+        <header class="chat-header">
+          <h2 id="chat-title">general</h2>
+          <span id="connection" class="status online">已连接</span>
+        </header>
+
+        <div id="messages" class="messages" aria-live="polite"></div>
+        <div id="typing" class="typing"></div>
+
+        <form id="message-form" class="composer" autocomplete="off">
+          <input
+            id="message-input"
+            name="message"
+            maxlength="2000"
+            placeholder="输入消息，回车发送..."
+            autocomplete="off"
+          />
+          <button type="submit">发送</button>
+        </form>
+      </main>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/app.js"></script>
+  </body>
+</html>
