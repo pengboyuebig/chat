@@ -8,6 +8,8 @@
     loginForm: document.getElementById('login-form'),
     nickname: document.getElementById('nickname'),
     room: document.getElementById('room'),
+    passwordField: document.getElementById('password-field'),
+    password: document.getElementById('chat-password'),
     loginError: document.getElementById('login-error'),
     enterBtn: document.getElementById('enter-btn'),
     app: document.getElementById('app'),
@@ -26,6 +28,8 @@
   const state = {
     nickname: '',
     room: '',
+    password: '',
+    authRequired: false,
     typingUsers: new Map(),
     typingTimers: new Map(),
     typingTimer: null,
@@ -166,21 +170,28 @@
     els.messageInput.value = '';
   }
 
-  function sendJoin(nickname, room) {
-    socket.emit('join', { nickname, room }, (res) => {
+  function sendJoin(nickname, room, password) {
+    state.password = password || '';
+    socket.emit('join', { nickname, room, password: state.password }, (res) => {
       if (!res || !res.ok) {
+        const message = (res && res.error) || '加入房间失败';
         els.enterBtn.disabled = false;
-        els.loginError.textContent = (res && res.error) || '加入房间失败';
+        if (state.room) {
+          resetToLogin(message);
+        } else {
+          els.loginError.textContent = message;
+          if (res && res.code === 'BAD_PASSWORD') {
+            els.password.focus();
+            els.password.select();
+          }
+        }
         return;
       }
       els.loginError.textContent = '';
       els.enterBtn.disabled = false;
       enterRoom(res.nickname, res.room);
       els.messages.textContent = '';
-      (res.history || []).forEach((m) => {
-        if (m.nickname === '__system__') renderSystem(m);
-        else renderMessage(m);
-      });
+      (res.history || []).forEach(renderMessage);
       renderUsers(res.users || []);
       scrollToBottom();
     });
@@ -196,6 +207,7 @@
     event.preventDefault();
     const nickname = els.nickname.value.trim();
     const room = els.room.value.trim();
+    const password = els.password.value;
     if (!nickname) {
       els.loginError.textContent = '请输入昵称';
       return;
@@ -204,18 +216,36 @@
       els.loginError.textContent = '请输入房间名';
       return;
     }
+    if (state.authRequired && !password) {
+      els.loginError.textContent = '请输入访问密码';
+      els.password.focus();
+      return;
+    }
     localStorage.setItem('chat:nickname', nickname);
     localStorage.setItem('chat:room', room);
 
     els.loginError.textContent = '';
     els.enterBtn.disabled = true;
 
-    if (socket.connected) sendJoin(nickname, room);
+    if (socket.connected) sendJoin(nickname, room, password);
     else {
-      socket.once('connect', () => sendJoin(nickname, room));
+      socket.once('connect', () => sendJoin(nickname, room, password));
       socket.connect();
     }
   });
+
+  fetch('/api/config')
+    .then((res) => res.json())
+    .then((cfg) => {
+      state.authRequired = Boolean(cfg && cfg.authRequired);
+      if (state.authRequired) els.passwordField.classList.remove('hidden');
+      if (cfg && cfg.limits) {
+        if (cfg.limits.nickname) els.nickname.maxLength = cfg.limits.nickname;
+        if (cfg.limits.room) els.room.maxLength = cfg.limits.room;
+        if (cfg.limits.message) els.messageInput.maxLength = cfg.limits.message;
+      }
+    })
+    .catch(() => {});
 
   // ---------- Messages ----------
   els.messageForm.addEventListener('submit', (event) => {
@@ -265,7 +295,11 @@
   });
 
   socket.io.on('reconnect', () => {
-    if (state.room) sendJoin(state.nickname, state.room);
+    if (state.room) sendJoin(state.nickname, state.room, state.password);
+  });
+
+  socket.on('rejected', (payload) => {
+    resetToLogin((payload && payload.reason) || '无法连接到聊天室');
   });
 
   socket.on('message', (message) => {

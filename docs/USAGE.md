@@ -69,7 +69,7 @@ npm run dev
 npm test
 ```
 
-预期结果：`# pass 6`。
+预期结果：`# pass 18`（服务端集成测试 + 存储单元测试）。
 
 ## 4. 界面使用说明
 
@@ -79,10 +79,13 @@ npm test
 
 | 字段 | 说明 | 示例 |
 | --- | --- | --- |
-| 昵称 | 你在聊天室中显示的名字，最多 24 个字符 | 小明 |
+| 昵称 | 你在聊天室中显示的名字，最多 24 个字符；同一房间内不能重名 | 小明 |
 | 房间 | 房间名称，最多 40 个字符；相同房间的人互相可见 | general |
+| 访问密码 | 仅当服务端设置了 `CHAT_PASSWORD` 时出现 | 由管理员提供 |
 
 点击「进入聊天室」。昵称和房间会保存在浏览器本地，下次打开自动填充。
+
+> 管理员设置了 `CHAT_PASSWORD` 后，登录卡片会自动显示「访问密码」输入框，密码错误无法进入房间。
 
 ### 4.2 发送消息
 
@@ -133,12 +136,19 @@ npm test
 | --- | --- | --- |
 | `PORT` | `3000` | 服务监听端口 |
 | `MAX_HISTORY` | `100` | 每个房间保留的历史消息条数 |
+| `CHAT_PASSWORD` | 空 | 设置后，加入房间必须输入相同密码；为空表示公开访问 |
+| `MAX_ROOMS` | `200` | 最大房间数；达到上限时优先回收无人房间 |
+| `MAX_USERS_PER_ROOM` | `100` | 每个房间最大在线人数 |
+| `MAX_CONNECTIONS` | `500` | 同时在线连接数上限 |
+| `MAX_MESSAGES_PER_5S` | `20` | 单个连接 5 秒内最多发送的消息数 |
 
 示例：
 
 ```bash
-PORT=8080 MAX_HISTORY=200 npm start
+PORT=8080 MAX_HISTORY=200 CHAT_PASSWORD=my-secret npm start
 ```
+
+设置密码后，打开页面会多出「访问密码」输入框，输入 `my-secret` 才能进入。
 
 对应代码位于 `src/config.js`，消息长度、频率限制等也可在此调整。
 
@@ -158,11 +168,13 @@ docker run -d --name chat -p 3000:3000 realtime-chat
 
 访问 <http://localhost:3000>。
 
-自定义端口与历史条数：
+自定义端口、历史条数与访问密码：
 
 ```bash
-docker run -d --name chat -p 8080:3000 -e MAX_HISTORY=200 realtime-chat
+docker run -d --name chat -p 8080:3000 -e MAX_HISTORY=200 -e CHAT_PASSWORD=your-secret realtime-chat
 ```
+
+> 容器内以非 root 用户运行，并带有 `/healthz` 健康检查。
 
 查看日志、停止和删除：
 
@@ -224,7 +236,8 @@ server {
 | `src/rooms.js` | 房间、成员与历史消息的内存存储 |
 | `src/sockets.js` | 所有 Socket 事件的校验与处理 |
 | `public/` | 前端页面、样式和脚本 |
-| `test/chat.test.js` | 基于 Node 内置测试框架的端到端测试 |
+| `test/chat.test.js` | 服务端 Socket 事件集成测试 |
+| `test/rooms.test.js` | RoomStore 单元测试 |
 
 ### 9.2 自定义事件
 

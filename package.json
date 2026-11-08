@@ -10,7 +10,7 @@
     "test": "node --test --test-force-exit"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "keywords": [
     "chat",

@@ -5,6 +5,9 @@ const config = require('./config');
 /**
  * In-memory room store. Each room keeps the most recent messages so that
  * people who join later still see some context.
+ *
+ * Read helpers never create a room: only writes (addUser/addMessage) do.
+ * That keeps empty rooms from being resurrected after cleanup.
  */
 class RoomStore {
   constructor({ maxHistory = config.maxHistory } = {}) {
@@ -19,6 +22,14 @@ class RoomStore {
       this.rooms.set(name, room);
     }
     return room;
+  }
+
+  peek(name) {
+    return this.rooms.get(name) || null;
+  }
+
+  has(name) {
+    return this.rooms.has(name);
   }
 
   addUser(roomName, socketId, nickname) {
@@ -47,16 +58,41 @@ class RoomStore {
     return message;
   }
 
+  entries(roomName) {
+    const room = this.rooms.get(roomName);
+    return room ? [...room.users.entries()] : [];
+  }
+
   history(roomName) {
-    return this.get(roomName).messages.slice();
+    const room = this.rooms.get(roomName);
+    return room ? room.messages.slice() : [];
   }
 
   users(roomName) {
-    return [...this.get(roomName).users.values()];
+    const room = this.rooms.get(roomName);
+    return room ? [...room.users.values()] : [];
   }
 
   roomNames() {
     return [...this.rooms.keys()];
+  }
+
+  /**
+   * Drops the oldest room that has no connected users. Used to make room for a
+   * new room once the configured room limit is reached.
+   */
+  evictIdleRoom() {
+    for (const [name, room] of this.rooms) {
+      if (room.users.size === 0) {
+        this.rooms.delete(name);
+        return name;
+      }
+    }
+    return null;
+  }
+
+  get size() {
+    return this.rooms.size;
   }
 }
 

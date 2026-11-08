@@ -35,6 +35,18 @@
           <input id="room" name="room" maxlength="40" placeholder="例如：general" value="general" required />
         </div>
 
+        <div class="field hidden" id="password-field">
+          <label for="chat-password">访问密码</label>
+          <input
+            id="chat-password"
+            name="password"
+            type="password"
+            maxlength="128"
+            placeholder="请输入访问密码"
+            autocomplete="current-password"
+          />
+        </div>
+
         <button type="submit" id="enter-btn">
           <span>进入聊天室</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
