@@ -30,7 +30,10 @@ test('a room with history survives until evicted', () => {
   store.removeUser('a', 's1');
 
   assert.equal(store.has('a'), true);
-  assert.deepEqual(store.history('a').map((m) => m.text), ['hi']);
+  assert.deepEqual(
+    store.history('a').map((m) => m.text),
+    ['hi'],
+  );
   assert.equal(store.evictIdleRoom(), 'a');
   assert.equal(store.has('a'), false);
 });
@@ -39,5 +42,8 @@ test('history is capped at maxHistory', () => {
   const store = new RoomStore({ maxHistory: 2 });
   for (let i = 0; i < 5; i += 1) store.addMessage('a', { text: String(i) });
 
-  assert.deepEqual(store.history('a').map((m) => m.text), ['3', '4']);
+  assert.deepEqual(
+    store.history('a').map((m) => m.text),
+    ['3', '4'],
+  );
 });

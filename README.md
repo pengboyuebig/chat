@@ -1,5 +1,7 @@
 # 实时聊天室 (Realtime Chat)
 
+[![CI](https://github.com/pengboyuebig/chat/actions/workflows/ci.yml/badge.svg)](https://github.com/pengboyuebig/chat/actions/workflows/ci.yml)
+
 一个基于 **Node.js + Express + Socket.IO** 的实时聊天应用，支持多房间、在线成员列表、输入状态提示和历史消息。
 
 > 安装、使用、配置与部署的详细说明请见 [docs/USAGE.md](docs/USAGE.md)。
@@ -17,7 +19,7 @@
 - 房间数 / 每房间人数 / 连接数上限，`typing` 事件限频
 - 自动清理空房间，避免内存无限增长
 - 断线自动重连，并自动重新加入原房间
-- 响应式界面，适配桌面与手机
+- 响应式界面，移动端提供可滑出的成员抽屉
 - 前端使用 `textContent` 渲染，避免 XSS
 
 ## 技术栈
@@ -30,7 +32,7 @@
 
 ## 快速开始
 
-需要 Node.js 18 及以上版本。
+需要 Node.js 20 及以上版本。
 
 ```bash
 npm install
@@ -48,10 +50,13 @@ npm start
 npm run dev
 ```
 
-运行测试：
+运行测试与代码检查：
 
 ```bash
-npm test
+npm test           # 单元 + 集成测试
+npm run lint       # ESLint
+npm run format     # Prettier 自动格式化
+npm run format:check  # 校验格式（CI 使用）
 ```
 
 ## 使用 Docker
@@ -82,6 +87,10 @@ chat/
 │   └── rooms.test.js      # 存储单元测试
 ├── docs/
 │   └── USAGE.md           # 详细使用指南
+├── .github/workflows/
+│   └── ci.yml             # GitHub Actions：lint + 格式检查 + 测试
+├── eslint.config.js       # ESLint 配置
+├── .prettierrc.json       # Prettier 配置
 ├── Dockerfile
 └── package.json
 ```

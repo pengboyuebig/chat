@@ -23,6 +23,9 @@
     messageInput: document.getElementById('message-input'),
     connection: document.getElementById('connection'),
     leaveBtn: document.getElementById('leave-btn'),
+    menuBtn: document.getElementById('menu-btn'),
+    menuCount: document.getElementById('menu-count'),
+    sidebarBackdrop: document.getElementById('sidebar-backdrop'),
   };
 
   const state = {
@@ -37,8 +40,16 @@
   };
 
   const AVATAR_COLORS = [
-    '#4f8cff', '#7c5cff', '#ff6b9d', '#ffa94d', '#37d67a',
-    '#22b8cf', '#f06595', '#845ef7', '#f59f00', '#20c997',
+    '#4f8cff',
+    '#7c5cff',
+    '#ff6b9d',
+    '#ffa94d',
+    '#37d67a',
+    '#22b8cf',
+    '#f06595',
+    '#845ef7',
+    '#f59f00',
+    '#20c997',
   ];
 
   function colorFor(name) {
@@ -128,6 +139,7 @@
   function renderUsers(users) {
     els.userList.textContent = '';
     els.userCount.textContent = String(users.length);
+    els.menuCount.textContent = String(users.length);
     for (const name of users) {
       const li = document.createElement('li');
       li.appendChild(avatar(name));
@@ -140,14 +152,17 @@
 
   function renderTyping() {
     const names = [...state.typingUsers.keys()].filter((n) => n !== state.nickname);
-    els.typing.textContent = names.length
-      ? `${names.join('、')} 正在输入...`
-      : '';
+    els.typing.textContent = names.length ? `${names.join('、')} 正在输入...` : '';
   }
 
   function clearTyping(name) {
     state.typingUsers.delete(name);
     renderTyping();
+  }
+
+  function setDrawer(open) {
+    els.app.classList.toggle('drawer-open', open);
+    els.menuBtn.setAttribute('aria-expanded', String(open));
   }
 
   function enterRoom(nickname, room) {
@@ -158,6 +173,7 @@
     els.login.classList.add('hidden');
     els.app.classList.remove('hidden');
     els.messages.textContent = '';
+    setDrawer(false);
     els.messageInput.focus();
   }
 
@@ -168,6 +184,7 @@
     els.loginError.textContent = message || '';
     els.messages.textContent = '';
     els.messageInput.value = '';
+    setDrawer(false);
   }
 
   function sendJoin(nickname, room, password) {
@@ -246,6 +263,20 @@
       }
     })
     .catch(() => {});
+
+  els.menuBtn.addEventListener('click', () => {
+    setDrawer(!els.app.classList.contains('drawer-open'));
+  });
+  els.sidebarBackdrop.addEventListener('click', () => setDrawer(false));
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') setDrawer(false);
+  });
+  if (typeof window.matchMedia === 'function') {
+    const desktop = window.matchMedia('(min-width: 861px)');
+    desktop.addEventListener('change', (event) => {
+      if (event.matches) setDrawer(false);
+    });
+  }
 
   // ---------- Messages ----------
   els.messageForm.addEventListener('submit', (event) => {

@@ -19,7 +19,7 @@
 
 ## 1. 环境要求
 
-- Node.js **18 或更高版本**（推荐 20 LTS）
+- Node.js **20 或更高版本**（推荐 20 LTS / 22 LTS）
 - npm（随 Node.js 一起安装）
 - 现代浏览器（Chrome、Edge、Firefox、Safari）
 
@@ -63,13 +63,17 @@ npm start
 npm run dev
 ```
 
-运行自动化测试：
+运行自动化测试与代码检查：
 
 ```bash
-npm test
+npm test              # 单元 + 集成测试
+npm run lint          # ESLint 静态检查
+npm run format        # Prettier 自动格式化
+npm run format:check  # 只校验格式，不修改文件
 ```
 
-预期结果：`# pass 18`（服务端集成测试 + 存储单元测试）。
+预期测试结果：`# pass 18`（服务端集成测试 + 存储单元测试）。
+CI（`.github/workflows/ci.yml`）会在 Node 20 与 22 上依次执行 `lint`、`format:check`、`test`。
 
 ## 4. 界面使用说明
 
@@ -100,6 +104,8 @@ npm test
 
 - 成员列表实时更新
 - 聊天区出现系统提示（如「小明 加入了聊天室」）
+
+**手机上**：侧边栏默认收起，点击左上角的成员按钮（带人数角标）会从左侧滑出抽屉，点遮罩或按 `Esc` 可关闭；抽屉内同样可以查看成员和退出房间。
 
 ### 4.4 正在输入提示
 
@@ -238,6 +244,15 @@ server {
 | `public/` | 前端页面、样式和脚本 |
 | `test/chat.test.js` | 服务端 Socket 事件集成测试 |
 | `test/rooms.test.js` | RoomStore 单元测试 |
+| `eslint.config.js` | ESLint 规则 |
+| `.prettierrc.json` | Prettier 格式规则 |
+| `.github/workflows/ci.yml` | GitHub Actions：lint + 格式检查 + 测试 |
+
+提交前建议先执行：
+
+```bash
+npm run lint && npm run format:check && npm test
+```
 
 ### 9.2 自定义事件
 

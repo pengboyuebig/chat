@@ -203,7 +203,9 @@ test('forwards typing to other room members only', async () => {
 });
 
 test('rate limits messages per socket', async () => {
-  const limited = await startServer({ rateLimit: { messages: { windowMs: 60000, maxMessages: 2 } } });
+  const limited = await startServer({
+    rateLimit: { messages: { windowMs: 60000, maxMessages: 2 } },
+  });
   try {
     const client = await connect(limited.url);
     await emitWithAck(client, 'join', { room: 'limit', nickname: 'Fast' });
